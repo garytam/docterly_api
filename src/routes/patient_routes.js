@@ -3,6 +3,7 @@ var config = require('../config');
 var doctrly = require('../doctrly');
 var path = require('path');
 var logger = require('../utils/logger');
+var mongodb = require('../mongodb');
 
 var patientRoute = express.Router();
 var thisFile = path.basename(__filename);
@@ -17,9 +18,9 @@ patientRoute.get('/:tenantId/patients', function(req, res) {
   tenantId = req.params.tenantId;
   var loggerMessage = thisFile + " get ALL patients for tenantId (" + tenantId + ")";
   logger.debug(loggerMessage + " starts...");
-  var all_patient = `/${tenantId}/patients`;
+  var allPatients = `/${tenantId}/patients`;
 
-  doctrly.api(REST_GET, all_patient, (err, result) => {
+  doctrly.api(REST_GET, allPatients, (err, result) => {
 
     if(err) {
       logger.error(loggerMessage + " failed, error => " + err);
@@ -36,23 +37,56 @@ patientRoute.get('/:tenantId/patients', function(req, res) {
 // get single patient       //
 // ************************ //
 patientRoute.get('/:tenantId/patients/:id', function(req, res) {
-  patients_id = req.params.id;
-  tenantId = req.params.tenantId; //tenant01
-  var loggerMessage = thisFile + " get patients ( " + patients_id + ") for tenantId (" + tenantId + ")";
+  var patientsId = req.params.id;
+  var tenantId = req.params.tenantId; //tenant01
+  var loggerMessage = thisFile + " get patients ( " + patientsId + ") for tenantId (" + tenantId + ")";
 
   logger.info(loggerMessage + " starts...");
-  var single_patient = `/${tenantId}/patients/${patients_id}`;
 
-  doctrly.api(REST_GET, single_patient, (err, result) => {
+  // fetch from mongo cache first
+  var mongoPayload = { "collection": "patients",
+                       "id": patientsId};
 
-    if(err) {
-      logger.error(loggerMessage + " failed, error => " + err);
-      res.json({error: JSON.stringify(err)})
-    } else if(result){
-      logger.info(loggerMessage + " completed");
-      res.json({result: result})
+  // var document = null;
+  logger.info("*** check if record exists in MongoDB");
+
+  mongodb.mongoFindById(mongoPayload, function(err, document){
+
+    // document = mongoDocuments;
+    logger.info(loggerMessage + " - Found " + document.length + " Document" );
+
+    // Document not exists in Mongo, need to call Doctrly API
+    if (document.length == 0){
+
+      var singlePatient = `/${tenantId}/patients/${patientsId}`;
+      doctrly.api(REST_GET, singlePatient, (err, result) => {
+
+        if(err) {
+          logger.error(loggerMessage + " failed, error => " + err);
+          res.json({error: JSON.stringify(err)})
+        } else if(result){
+
+          // insert record into mongoDB
+          mongoPayload = { "collection": "patients",
+                           "document": result};
+
+          mongodb.mongoInsert(mongoPayload, function(err, insertResult){
+            if (err){
+              logger.info("inserted into Mongo failed err = " + err);
+            }
+            logger.info(loggerMessage + " completed");
+            res.json({result: result})
+          });
+
+          // logger.info(loggerMessage + " completed");
+          // res.json({result: result})
+        }
+      });
+    } else {
+      res.json({result: document});
     }
   });
+
 });
 
 
@@ -60,9 +94,9 @@ patientRoute.get('/:tenantId/patients/:id', function(req, res) {
 // create single patient    //
 // ************************ //
 patientRoute.post('/:tenantId/patients', function(req, res) {
-  patients_id = req.params.id;
+  patientsId = req.params.id;
   tenantId = req.params.tenantId; //tenant01
-  var loggerMessage = thisFile + " get patients ( " + patients_id + ") for tenantId (" + tenantId + ")";
+  var loggerMessage = thisFile + " get patients ( " + patientsId + ") for tenantId (" + tenantId + ")";
 
   logger.info(loggerMessage + " starts...");
   var post_patient = `/${tenantId}/patients`;
