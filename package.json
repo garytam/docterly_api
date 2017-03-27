@@ -1,0 +1,21 @@
+{
+  "name": "doctrly_api",
+  "version": "0.0.3",
+  "description": "Calling Doctrly API",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon server.js"
+  },
+  "author": "Gary",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.17.1",
+    "express": "^4.15.2",
+    "json-bigint": "^0.2.3",
+    "unirest": "^0.5.1",
+    "winston": "^2.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^1.11.0"
+  }
+}
