@@ -12,33 +12,11 @@ var REST_GET = config.REST_GET;
 var REST_POST = config.REST_POST;
 
 // ************************ //
-// get all patients         //
-// ************************ //
-patientRoute.get('/:tenantId/patients', function(req, res) {
-  tenantId = req.params.tenantId;
-  var loggerMessage = thisFile + " get ALL patients for tenantId (" + tenantId + ")";
-  logger.debug(loggerMessage + " starts...");
-  var allPatients = `/${tenantId}/patients`;
-
-  doctrly.api(REST_GET, allPatients, (err, result) => {
-
-    if(err) {
-      logger.error(loggerMessage + " failed, error => " + err);
-      res.json({error: JSON.stringify(err)})
-    } else if(result){
-      logger.info(loggerMessage + " completed");
-      res.json({result: result})
-    }
-
-  });
-});
-
-// ************************ //
 // get single patient       //
 // ************************ //
-patientRoute.get('/:tenantId/patients/:id', function(req, res) {
+function getSinglePatient(req, res) {
   var patientsId = req.params.id;
-  var tenantId = req.params.tenantId; //tenant01
+  var tenantId = req.params.tenantid; //tenant01
   var loggerMessage = thisFile + " get patients ( " + patientsId + ") for tenantId (" + tenantId + ")";
 
   logger.info(loggerMessage + " starts...");
@@ -87,21 +65,22 @@ patientRoute.get('/:tenantId/patients/:id', function(req, res) {
     }
   });
 
-});
+};
 
 
 // ************************ //
-// create single patient    //
+// get all patients         //
 // ************************ //
-patientRoute.post('/:tenantId/patients', function(req, res) {
-  patientsId = req.params.id;
-  tenantId = req.params.tenantId; //tenant01
-  var loggerMessage = thisFile + " get patients ( " + patientsId + ") for tenantId (" + tenantId + ")";
+function getAllPatients(req, res){
 
-  logger.info(loggerMessage + " starts...");
-  var post_patient = `/${tenantId}/patients`;
+  tenantId = req.params.tenantid;
+  console.log("tenantId = " + tenantId);
 
-  doctrly.api(REST_POST, post_patient, (err, result) => {
+  var loggerMessage = thisFile + " get ALL patients for tenantId (" + tenantId + ")";
+  logger.debug(loggerMessage + " starts...");
+  var allPatients = `/${tenantId}/patients`;
+
+  doctrly.api(REST_GET, allPatients, (err, result) => {
 
     if(err) {
       logger.error(loggerMessage + " failed, error => " + err);
@@ -110,7 +89,21 @@ patientRoute.post('/:tenantId/patients', function(req, res) {
       logger.info(loggerMessage + " completed");
       res.json({result: result})
     }
-  });
-});
 
-module.exports = patientRoute
+  });
+};
+
+// ************************ //
+// setup for export         //
+// ************************ //
+var patients = {
+  getAll : function(req, res){
+    getAllPatients(req,res);
+  },
+
+  getOne: function(req, res){
+    getSinglePatient(req,res);
+  }
+}
+
+module.exports = patients;

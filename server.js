@@ -1,24 +1,40 @@
-var express = require('express');
-var config = require('./src/config');
-var app = express();
-var patientRoute = require('./src/routes/patient_routes.js')
-var organizationRoute = require('./src/routes/organization_routes.js');
+var express    = require('express');
+var path       = require('path');
+var logger     = require('morgan');
 var bodyParser = require('body-parser');
-var logger = require('./src/utils/logger');
+var app        = express();
+var config     = require('./src/config');
 
-var PORT = process.env.PORT || config.port;
-
-app.use('/api_v1', patientRoute);
-app.use('/api_v1', organizationRoute);
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(logger('dev'));
 app.use(bodyParser.json());
+app.all('/*', function(req, res, next) {
+    // CORS headers
+    res.header("Access-Control-Allow-Origin", "*"); // restrict it to the required domain
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+    // Set custom headers for CORS
+    res.header('Access-Control-Allow-Headers', 'Content-type,Accept,X-Access-Token,X-Key');
+    if (req.method == 'OPTIONS') {
+        res.status(200).end();
+    } else {
+        next();
+    }
+});
+// Auth Middleware - This will check if the token is valid
+// Only the requests that start with /api/v1/* will be checked for the token.
+// Any URL's that do not follow the below pattern should be avoided unless you
+// are sure that authentication is not needed
+app.all('/api/v1/*', [require('./src/middlewares/validateRequest')]);
 
-//
-// app.get('/patients', function(req, res){
-//   res.send("here in patients");
-// })
+app.use('/', require('./src/routes'));
 
-
-app.listen(PORT, function(){
-  logger.info("Doctrly API started on port " + PORT);
-})
+// If no route is matched by now, it must be a 404
+app.use(function(req, res, next) {
+    var err = new Error('Not Found');
+    err.status = 404;
+    next(err);
+});
+// Start the server
+app.set('port', process.env.PORT || config.port);
+var server = app.listen(app.get('port'), function() {
+    console.log('Doctrly API server listening on port ' + server.address().port);
+});

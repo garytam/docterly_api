@@ -137,3 +137,38 @@ exports.mongoFindById = function(payload, callback){
 
   });
 }
+
+exports.mongoFindUser = function(username, callback){
+
+  logger.debug("Mongo User by userName => ", username);
+
+  MongoClient.connect(url, function(err, db){
+
+    if (err){
+      logger.error("Error connecting to MongoDB");
+      callback(err);
+      return;
+    }
+
+    var mongoCollection = db.collection("users");
+    mongoCollection.find({"username": username}).toArray(function(err, result){
+      logger.info("Number of user found =  " + result.length);
+      db.close();
+
+      if (err) {
+        logger.error(err);
+        callback(err);
+        return;
+      }
+
+      if (result.length) {
+        callback(null, result);
+        return;
+      };
+
+      logger.info('No document(s) found for user (' + username + ')');
+      callback(null, []);
+    });
+
+  });
+}

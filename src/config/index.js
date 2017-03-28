@@ -15,3 +15,5 @@ exports.REST_GET = "GET";
 exports.REST_POST = "POST";
 
 exports.mongo_url = "mongodb://localhost:27017/doctrly";
+
+exports.topSecret = "TopSecretABC123";
