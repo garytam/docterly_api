@@ -1,5 +1,7 @@
 var jwt = require('jwt-simple');
 var validateUser = require('../routes/auth').validateUser;
+var httpStatus = require('http-status-codes');
+
 
 module.exports = function(req, res, next) {
 
@@ -18,9 +20,9 @@ module.exports = function(req, res, next) {
       var decoded = jwt.decode(token, require('../config/secret.js')());
       console.log("token is good until " + new Date(decoded.exp));
       if (decoded.exp <= Date.now()) {
-        res.status(400);
+        res.status(httpStatus.UNAUTHORIZED);
         res.json({
-          "status": 400,
+          "status": httpStatus.UNAUTHORIZED,
           "message": "Token Expired"
         });
         return;
@@ -55,17 +57,18 @@ module.exports = function(req, res, next) {
 
 
     } catch (err) {
-      res.status(500);
+      console.log("httpStatus ==>" + httpStatus.UNAUTHORIZED);
+      res.status(httpStatus.UNAUTHORIZED);
       res.json({
-        "status": 500,
+        "status": httpStatus.UNAUTHORIZED,
         "message": "Oops something went wrong",
         "error": err
       });
     }
   } else {
-    res.status(401);
+    res.status(httpStatus.UNAUTHORIZED);
     res.json({
-      "status": 401,
+      "status": httpStatus.UNAUTHORIZED,
       "message": "Invalid Token or Key"
     });
     return;
