@@ -5,6 +5,14 @@ var bodyParser = require('body-parser');
 var app        = express();
 var config     = require('./src/config');
 
+
+
+// LOGIN WITH FOLLOWING
+// {
+// 	"username":"gtam@stericycle.com",
+// 	"password":"password"
+// }
+
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.all('/*', function(req, res, next) {

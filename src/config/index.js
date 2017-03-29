@@ -14,6 +14,7 @@ exports.authorization = 'Basic c1g0OWRTdnBjVjRiU0dsUjNXQzdqRlY3WkRZYTpaQmZ3Y3pWT
 exports.REST_GET = "GET";
 exports.REST_POST = "POST";
 
-exports.mongo_url = "mongodb://localhost:27017/doctrly";
+exports.mongo_url_local = "mongodb://localhost:27017/doctrly";
+exports.mongo_url = "mongodb://mongo:27017/doctrly";
 
 exports.topSecret = "TopSecretABC123";
