@@ -12,10 +12,10 @@ var helper        = require('./help.js');
 router.post('/login', auth.login);
 router.get('/help', helper.about);
 
-router.get('/api/v1/:tenantid/organizations', organizations.getAll);
-router.get('/api/v1/:tenantid/organizations/:id', organizations.getOne);
+router.get('/doctrlyAPI/v1/:tenantid/organizations', organizations.getAll);
+router.get('/doctrlyAPI/v1/:tenantid/organizations/:id', organizations.getOne);
 
-router.get('/api/v1/:tenantid/patients', patients.getAll);
-router.get('/api/v1/:tenantid/patients/:id', patients.getOne);
+router.get('/doctrlyAPI/v1/:tenantid/patients', patients.getAll);
+router.get('/doctrlyAPI/v1/:tenantid/patients/:id', patients.getOne);
 
 module.exports = router;

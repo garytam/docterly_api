@@ -15,6 +15,8 @@ exports.REST_GET = "GET";
 exports.REST_POST = "POST";
 
 exports.mongo_url_local = "mongodb://localhost:27017/doctrly";
+exports.mongo_url_docker = "mongodb://mongo:27017/doctrly";
 exports.mongo_url = "mongodb://mongo:27017/doctrly";
+
 
 exports.topSecret = "TopSecretABC123";
